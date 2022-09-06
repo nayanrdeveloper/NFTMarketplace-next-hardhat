@@ -1,5 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 function HeroSection() {
   return (
@@ -9,7 +10,7 @@ function HeroSection() {
             <p className='text-2xl text-[#acacac]'>Partner with one of the worlds largest retailers to showcase your brand and products.</p>
             <div className='flex space-x-3'>
                 <button className='py-4 px-6 bg-[#00a3ff] hover:bg-[#212e48] text-white rounded-md w-40'>Get Started </button>
-                <button className='py-4 px-6 bg-[#212e48] hover:bg-[#00a3ff] text-white rounded-md w-40'>Create </button>
+                <Link href="/createNFT"><button className='py-4 px-6 bg-[#212e48] hover:bg-[#00a3ff] text-white rounded-md w-40'>Create </button></Link>
             </div>
         </div>
         <div className=''>
