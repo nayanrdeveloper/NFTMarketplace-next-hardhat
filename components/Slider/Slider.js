@@ -34,7 +34,7 @@ function Slider() {
           {SliderImageLIst.map((NFTImage, index) => {
             return (
               <SwiperSlide key={index}>
-                <Image src={NFTImage} alt="design2" width={1100} height={550} />
+                <Image src={NFTImage} alt="design2" width={1100} height={750} />
               </SwiperSlide>
             );
           })}

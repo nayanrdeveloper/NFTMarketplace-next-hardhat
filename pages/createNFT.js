@@ -1,9 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaFileUpload } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function createNFT() {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [productData, setProductData] = useState({
+    name: "",
+    price: "",
+    desc: "",
+  });
+
+  const onchangeProductInput = (event) => {
+    setProductData({
+      ...productData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const onSubmitProduct = (event) => {
+    event.preventDefault();
+    if (!productData.name || !productData.desc || !productData.price ){
+      toast.error("All Fields are required!!!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+    
+  };
+
   return (
     <div className="container my-8">
+      <ToastContainer theme="dark" />
       <div className="">
         <span className="text-white text-3xl font-bold">Create New NFT</span>
         <div className="flex gap-x-10 mt-8">
@@ -24,6 +57,9 @@ function createNFT() {
               </label>
               <input
                 type="text"
+                onChange={onchangeProductInput}
+                value={productData.name}
+                required
                 id="name"
                 placeholder=" e.g. Digital Awesome NFT"
                 className="h-12 w-full bg-[#242435] border-2 border-[#ffffff14] text-white rounded-md focus:border focus:border-[#00a3ff]"
@@ -35,6 +71,8 @@ function createNFT() {
               </label>
               <textarea
                 id="desc"
+                onChange={onchangeProductInput}
+                value={productData.desc}
                 placeholder=" Enter NFT Description"
                 className="h-36 w-full bg-[#242435] border-2 border-[#ffffff14] text-white rounded-md focus:border focus:border-[#00a3ff]"
               />
@@ -45,12 +83,17 @@ function createNFT() {
               </label>
               <input
                 type="number"
+                onChange={onchangeProductInput}
+                value={productData.price}
                 id="price"
                 placeholder=" e.g. 20"
                 className="h-12 w-full bg-[#242435] border-2 border-[#ffffff14] text-white rounded-md focus:border focus:border-[#00a3ff]"
               />
             </div>
-            <button className="py-4 px-6 bg-[#00a3ff] hover:bg-[#212e48] text-white rounded-md w-40">
+            <button
+              onClick={onSubmitProduct}
+              className="py-4 px-6 bg-[#00a3ff] hover:bg-[#212e48] text-white rounded-md w-40"
+            >
               Submit Item
             </button>
           </div>

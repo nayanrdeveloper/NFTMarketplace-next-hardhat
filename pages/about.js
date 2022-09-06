@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 import StatisticsCard from "../components/StatisticsCard/StatisticsCard";
 
@@ -38,7 +39,7 @@ function about() {
               bitcoin or fiat money like the U.S.
             </p>
             <button className="inline w-56 bg-[#13131d] py-3 px-1 rounded-xl text-white hover:bg-[#00a3ff]">
-              See Our Blog
+              <Link href="/blogs">See Our Blog </Link>
             </button>
           </div>
           <div className="p-6 flex flex-col gap-5 border border-[#ffffff14] rounded-sm">

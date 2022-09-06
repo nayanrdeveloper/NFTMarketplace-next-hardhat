@@ -32,7 +32,7 @@ function BlogList() {
         },
     ]
   return (
-    <div>
+    <article>
       <div className="container my-8">
         <div className="">
           <span className="text-white text-3xl font-bold">Blogs</span>
@@ -43,6 +43,7 @@ function BlogList() {
                     <Image
                       src={blogData.image}
                       alt="design2"
+                      className="transform transition duration-500 hover:scale-110"
                      width={350}
                      height={350}
                     />
@@ -57,7 +58,7 @@ function BlogList() {
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 

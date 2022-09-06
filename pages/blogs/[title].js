@@ -10,7 +10,7 @@ function blogDetails() {
           <p className="text-white text-3xl font-extrabold">
             Videos releases Car drive
           </p>
-          <span className="text-[#acacac]">10 may, 2021</span>
+          <time className="text-[#acacac]">10 may, 2021</time>
           <Image src="/design4.webp" alt="design_7" height={400} width={400} />
           <p className="text-[#acacac]">
             Nobis eleifend option conguenes. Mauris tempor, orci id pellentesque

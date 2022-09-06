@@ -1,3 +1,21 @@
+:root {
+  --toastify-color-dark: #242435;
+  --onboard-connect-sidebar-background:#242435;
+  --onboard-connect-sidebar-color: white;
+  --onboard-action-required-modal-background: #242435;
+  --onboard-action-required-modal-color: white;
+  --account-center-minimized-background: #242435;
+  --account-center-minimized-address-color: white;
+  --onboard-gray-100:#ffffff14;
+  --account-center-position-top: -9px;
+  --account-center-position-right: -9px;
+  /* --onboard-gray-400:rgba(255,0,0,0.0); */
+  --onboard-modal-background: #13131d;
+  --onboard-modal-color: white;
+  /* --onboard-gray-500: white;  */
+ 
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
