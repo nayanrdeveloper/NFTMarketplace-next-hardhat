@@ -55,7 +55,7 @@ const onboard = Onboard({
 
 
 export class Web3Onboard{
-
+    signer;
     constructor(){
         makeObservable(this,{
             connectWallet: action,
@@ -63,7 +63,14 @@ export class Web3Onboard{
     }
 
     async connectWallet(){
-        const wallets = await onboard.connectWallet()
+        const wallets = await onboard.connectWallet();
+        const ethersProvider = new ethers.providers.Web3Provider(wallets[0].provider,'any');
+        const providerSigner = ethersProvider.getSigner();
+        this.signer = providerSigner;
+    }
+
+    get getSigner(){
+      return this.signer;
     }
 }
 

@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { FaFileUpload } from "react-icons/fa";
+import { NFTStorage, File } from "nft.storage";
 import { ToastContainer, toast } from "react-toastify";
+import connectWallet from "../walletConnect";
+import { ethers } from "ethers";
+import contractAbi from "../artifacts/contracts/myNFT.sol/MyNFT.json";
 import "react-toastify/dist/ReactToastify.css";
 
 function createNFT() {
@@ -9,7 +13,11 @@ function createNFT() {
     name: "",
     price: "",
     desc: "",
+    imageUrl: "",
   });
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [NFTImage, setNFTImage] = useState();
 
   const onchangeProductInput = (event) => {
     setProductData({
@@ -18,9 +26,36 @@ function createNFT() {
     });
   };
 
-  const onSubmitProduct = (event) => {
+  const onChangeImage = async (event) => {
+    setNFTImage(event.target.files[0]);
+
+    const nftStorage = new NFTStorage({
+      token: process.env.NEXT_PUBLIC_NFT_STORAGE_KEY,
+    });
+    console.log(nftStorage);
+    const link = await nftStorage.store({
+      // 'name': productData.name,
+      // 'desc': productData.desc,
+      image: event.target.files[0],
+      name: "HEllo world",
+      description: "good Product",
+      price: 900,
+      style: "Extra Large",
+      // 'price': productData.price,
+    });
+    // console.log(link.data.image);
+    console.log(link.url);
+    console.log(
+      `https://ipfs.io/ipfs/${link.data.image.hostname}${link.data.image.pathname}`
+    );
+    console.log(`https://ipfs.io/ipfs/${link.url.substr(7)}`);
+  };
+
+  const onSubmitProduct = async (event) => {
     event.preventDefault();
-    if (!productData.name || !productData.desc || !productData.price ){
+    console.log("Start");
+    console.log(event.target.file.files[0]);
+    if (!productData.name || !productData.desc || !productData.price) {
       toast.error("All Fields are required!!!", {
         position: "top-right",
         autoClose: 3000,
@@ -30,8 +65,38 @@ function createNFT() {
         draggable: true,
         progress: undefined,
       });
+    } else {
+      const nftStorage = new NFTStorage({
+        token: process.env.NEXT_PUBLIC_NFT_STORAGE_KEY,
+      });
+      const link = await nftStorage.store({
+        image: event.target.file.files[0],
+        name: productData.name,
+        description: productData.desc,
+        price: productData.price,
+      });
+      const ipfsURL = `https://ipfs.io/ipfs/${link.url.substr(7)}`;
+      connectWallet.connectWallet();
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      let contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+        contractAbi.abi,
+        signer
+      );
+      const price = await ethers.utils.parseUnits(productData.price, "ether");
+      console.log(price);
+      let listingPrice =await contract.getListedPrice();
+      let newlistingPrice = await listingPrice.toString();
+      console.log(newlistingPrice);
+      let traction = await contract.createToken(ipfsURL, price, {
+        value: '10000000000000000',
+      });
+      console.log("Contract Ended");
+      await traction.wait();
+      console.log(traction);
     }
-    
   };
 
   return (
@@ -39,65 +104,75 @@ function createNFT() {
       <ToastContainer theme="dark" />
       <div className="">
         <span className="text-white text-3xl font-bold">Create New NFT</span>
-        <div className="flex gap-x-10 mt-8">
-          <div className="justify-center my-auto">
-            <p className="text-white">Upload file</p>
-            <div className="py-6 mt-7 flex justify-center text-center my-auto flex-col border-2 border-dashed border-[#575767]">
-              <input type="file" className="w-full h-full opacity-0" />
-              <FaFileUpload className="mx-auto text-3xl text-[#00a3ff]" />
-              <p className="text-[#acacac]">Choose a File</p>
-              <p className="text-[#acacac]">PNG, WEBP, MP4, or MP3.</p>
-              <p className="text-[#acacac]">MAx 1Gb.</p>
+        <form onSubmit={onSubmitProduct}>
+          <div className="flex gap-x-10 mt-8">
+            <div className="justify-center my-auto">
+              <p className="text-white">Upload file</p>
+              <div className="py-6 mt-7 flex justify-center text-center my-auto flex-col border-2 border-dashed border-[#575767]">
+                <input
+                  type="file"
+                  name="file"
+                  className="w-full h-full opacity-0"
+                />
+                <FaFileUpload className="mx-auto text-3xl text-[#00a3ff]" />
+                <p className="text-[#acacac]">Choose a File</p>
+                <p className="text-[#acacac]">PNG, WEBP, MP4, or MP3.</p>
+                <p className="text-[#acacac]">MAx 1Gb.</p>
+              </div>
+            </div>
+            <div className="flex flex-col border border-[#ffffff14] p-10 bg-[#24243557] rounded-lg gap-4 w-full">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="name" className="text-[#acacac]">
+                  Product Name
+                </label>
+                <input
+                  type="text"
+                  onChange={onchangeProductInput}
+                  name="name"
+                  value={productData.name}
+                  required
+                  id="name"
+                  placeholder=" e.g. Digital Awesome NFT"
+                  className="h-12 w-full bg-[#242435] border-2 border-[#ffffff14] text-white rounded-md focus:border focus:border-[#00a3ff]"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="desc" className="text-[#acacac]">
+                  Description
+                </label>
+                <textarea
+                  id="desc"
+                  onChange={onchangeProductInput}
+                  value={productData.desc}
+                  name="desc"
+                  placeholder=" Enter NFT Description"
+                  className="h-36 w-full bg-[#242435] border-2 border-[#ffffff14] text-white rounded-md focus:border focus:border-[#00a3ff]"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="price" className="text-[#acacac]">
+                  Product Price
+                </label>
+                <input
+                  type="number"
+                  onChange={onchangeProductInput}
+                  value={productData.price}
+                  id="price"
+                  name="price"
+                  placeholder=" e.g. 20"
+                  className="h-12 w-full bg-[#242435] border-2 border-[#ffffff14] text-white rounded-md focus:border focus:border-[#00a3ff]"
+                />
+              </div>
+              <button
+                // onClick={onSubmitProduct}
+                type="submit"
+                className="py-4 px-6 bg-[#00a3ff] hover:bg-[#212e48] text-white rounded-md w-40"
+              >
+                Submit Item
+              </button>
             </div>
           </div>
-          <div className="flex flex-col border border-[#ffffff14] p-10 bg-[#24243557] rounded-lg gap-4 w-full">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name" className="text-[#acacac]">
-                Product Name
-              </label>
-              <input
-                type="text"
-                onChange={onchangeProductInput}
-                value={productData.name}
-                required
-                id="name"
-                placeholder=" e.g. Digital Awesome NFT"
-                className="h-12 w-full bg-[#242435] border-2 border-[#ffffff14] text-white rounded-md focus:border focus:border-[#00a3ff]"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="desc" className="text-[#acacac]">
-                Description
-              </label>
-              <textarea
-                id="desc"
-                onChange={onchangeProductInput}
-                value={productData.desc}
-                placeholder=" Enter NFT Description"
-                className="h-36 w-full bg-[#242435] border-2 border-[#ffffff14] text-white rounded-md focus:border focus:border-[#00a3ff]"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="price" className="text-[#acacac]">
-                Product Price
-              </label>
-              <input
-                type="number"
-                onChange={onchangeProductInput}
-                value={productData.price}
-                id="price"
-                placeholder=" e.g. 20"
-                className="h-12 w-full bg-[#242435] border-2 border-[#ffffff14] text-white rounded-md focus:border focus:border-[#00a3ff]"
-              />
-            </div>
-            <button
-              onClick={onSubmitProduct}
-              className="py-4 px-6 bg-[#00a3ff] hover:bg-[#212e48] text-white rounded-md w-40"
-            >
-              Submit Item
-            </button>
-          </div>
-        </div>
+        </form>
       </div>
     </div>
   );
