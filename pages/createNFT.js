@@ -1,13 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaFileUpload } from "react-icons/fa";
 import { NFTStorage, File } from "nft.storage";
 import { ToastContainer, toast } from "react-toastify";
 import connectWallet from "../walletConnect";
 import { ethers } from "ethers";
-import contractAbi from "../artifacts/contracts/myNFT.sol/MyNFT.json";
+import NFTTOkenABI from "../artifacts/contracts/myToken.sol/MyToken.json";
+import NFTMarketplaceABI from "../artifacts/contracts/myNFT.sol/MyNFT.json";
 import "react-toastify/dist/ReactToastify.css";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 function createNFT() {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    AOS.init();
+    AOS.refresh();
+  })
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [productData, setProductData] = useState({
     name: "",
@@ -55,6 +64,7 @@ function createNFT() {
     event.preventDefault();
     console.log("Start");
     console.log(event.target.file.files[0]);
+    const imageFile = event.target.file.files[0];
     if (!productData.name || !productData.desc || !productData.price) {
       toast.error("All Fields are required!!!", {
         position: "top-right",
@@ -70,7 +80,7 @@ function createNFT() {
         token: process.env.NEXT_PUBLIC_NFT_STORAGE_KEY,
       });
       const link = await nftStorage.store({
-        image: event.target.file.files[0],
+        image: imageFile,
         name: productData.name,
         description: productData.desc,
         price: productData.price,
@@ -80,22 +90,30 @@ function createNFT() {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = await provider.getSigner();
 
-      let contract = new ethers.Contract(
-        process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
-        contractAbi.abi,
+      let tokenContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_NFTTOKN_CONTRACT_ADDRESS,
+        NFTTOkenABI.abi,
+        signer
+      );
+      let traction = await tokenContract.createToken(ipfsURL);
+      let tx = await traction.wait();
+      let event = tx.events[0];
+      let value = event.args[2];
+      let tokenId = value.toNumber();
+
+      const NFTMarketplaceContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_MARKETPLACE_CONTRACT_ADDRESS,
+        NFTMarketplaceABI.abi,
         signer
       );
       const price = await ethers.utils.parseUnits(productData.price, "ether");
-      console.log(price);
-      let listingPrice =await contract.getListedPrice();
+      let listingPrice = await NFTMarketplaceContract.getListedPrice();
       let newlistingPrice = await listingPrice.toString();
-      console.log(newlistingPrice);
-      let traction = await contract.createToken(ipfsURL, price, {
-        value: '10000000000000000',
+      let NFTTranction = await NFTMarketplaceContract.createToken(process.env.NEXT_PUBLIC_NFTTOKN_CONTRACT_ADDRESS,tokenId, price, {
+        value: newlistingPrice,
       });
-      console.log("Contract Ended");
-      await traction.wait();
-      console.log(traction);
+      await NFTTranction.wait();
+      console.log(NFTTranction);
     }
   };
 
@@ -106,7 +124,7 @@ function createNFT() {
         <span className="text-white text-3xl font-bold">Create New NFT</span>
         <form onSubmit={onSubmitProduct}>
           <div className="flex gap-x-10 mt-8">
-            <div className="justify-center my-auto">
+            <div className="justify-center my-auto" data-aos="fade-right">
               <p className="text-white">Upload file</p>
               <div className="py-6 mt-7 flex justify-center text-center my-auto flex-col border-2 border-dashed border-[#575767]">
                 <input
@@ -120,7 +138,7 @@ function createNFT() {
                 <p className="text-[#acacac]">MAx 1Gb.</p>
               </div>
             </div>
-            <div className="flex flex-col border border-[#ffffff14] p-10 bg-[#24243557] rounded-lg gap-4 w-full">
+            <div className="flex flex-col border border-[#ffffff14] p-10 bg-[#24243557] rounded-lg gap-4 w-full" data-aos="fade-left">
               <div className="flex flex-col gap-2">
                 <label htmlFor="name" className="text-[#acacac]">
                   Product Name

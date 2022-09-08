@@ -5,22 +5,25 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol"; 
 
-contract MyNFT is ERC721URIStorage {
+contract MyNFT is ReentrancyGuard {
     address payable owner;
     using Counters for Counters.Counter;
 
-    Counters.Counter private _tokenIds;
+    Counters.Counter private _itemId;
     Counters.Counter private _soldItems;
 
     uint256 listingPrice = 0.01 ether;
 
-    constructor() ERC721("myNFT", "CORO") {
+    constructor() {
         owner = payable(msg.sender);
     }
 
     struct listedToken {
+        uint256 itemId;
         uint256 _tokenId;
+        address nftContract;
         address payable seller;
         address payable owner;
         uint256 price;
@@ -39,7 +42,7 @@ contract MyNFT is ERC721URIStorage {
     }
 
     function latestListeddToken() public view returns (listedToken memory) {
-        uint256 currentTokenId = _tokenIds.current();
+        uint256 currentTokenId = _itemId.current();
         return idToListedToken[currentTokenId];
     }
 
@@ -52,38 +55,45 @@ contract MyNFT is ERC721URIStorage {
     }
 
     function getCurrentTokenId() public view returns (uint256) {
-        return _tokenIds.current();
+        return _itemId.current();
     }
 
-    function createToken(string memory tokenURI, uint256 _price)
+    function createToken(address nftContract,uint256  tokenId, uint256 _price)
         public
-        payable
+        payable nonReentrant
         returns (uint256)
     {
+        require(_price > 0, "Price greate than 0 wei");
+        require(msg.value == listingPrice, "Price must be Equal to listing Price");
+        _itemId.increment();
+        uint256 currentItemId = _itemId.current();
+        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
         // require(msg.value == listingPrice, "Price are not enough for create token");
         // require(_price > 0, "Price are greater 0");
-        _tokenIds.increment();
-        uint256 currentTokenId = _tokenIds.current();
-        _safeMint(msg.sender, currentTokenId);
-        _setTokenURI(currentTokenId, tokenURI);
+        // _itemId.increment();
+        // uint256 currentTokenId = _itemId.current();
+        // _safeMint(msg.sender, currentTokenId);
+        // _setTokenURI(currentTokenId, tokenURI);
 
-        createListedToken(currentTokenId, _price);
+        createListedToken(currentItemId,tokenId, nftContract,_price);
 
-        return currentTokenId;
+        return currentItemId;
     }
 
-    function createListedToken(uint256 _tokenId, uint256 _price) private {
+    function createListedToken(uint256 itemId,uint256 _tokenId,address nftContract ,uint256 _price) private {
         idToListedToken[_tokenId] = listedToken(
+            itemId,
             _tokenId,
-            payable(address(this)),
+            nftContract,
             payable(msg.sender),
+            payable(address(0)),
             _price,
             false
         );
     }
 
     function getAllNFTs() public view returns (listedToken[] memory) {
-        uint256 tokenCount = _tokenIds.current();
+        uint256 tokenCount = _itemId.current();
         uint256 indexNo = 0;
         listedToken[] memory tokens = new listedToken[](tokenCount);
 
@@ -97,7 +107,7 @@ contract MyNFT is ERC721URIStorage {
     }
 
     function getMyNFT() public view returns (listedToken[] memory) {
-        uint256 currentTokenId = _tokenIds.current();
+        uint256 currentTokenId = _itemId.current();
         uint256 itemCount = 0;
         uint256 currentIndex = 0;
 
@@ -126,20 +136,16 @@ contract MyNFT is ERC721URIStorage {
         return tokens;
     }
 
-    function executeSale(uint256 tokenId) public payable{
-        uint256 price = idToListedToken[tokenId].price;
-        require(msg.value == price, "PLease submit the asking for the NFT in order to Purchase");
-
-        address seller = idToListedToken[tokenId].seller;
-
-        idToListedToken[tokenId].currentlyListed = true;
-        idToListedToken[tokenId].seller = payable(msg.sender);
-
-        _transfer(address(this), msg.sender, tokenId);
-        approve(address(this), tokenId);
-
+    function executeSale(address nftContract, uint256 itemId) public payable nonReentrant{
+        uint price = idToListedToken[itemId].price;
+        uint tokenId = idToListedToken[itemId]._tokenId;
+        require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+        idToListedToken[itemId].seller.transfer(msg.value);
+        IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
+        idToListedToken[itemId].owner = payable(msg.sender);
+        idToListedToken[itemId].currentlyListed = true;
+        _soldItems.increment();
         payable(owner).transfer(listingPrice);
-        payable(seller).transfer(msg.value);
 
     }
 }

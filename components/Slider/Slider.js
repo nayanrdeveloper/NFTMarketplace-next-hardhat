@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Scrollbar, Pagination } from "swiper";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -9,6 +11,10 @@ import "swiper/css/scrollbar";
 import "swiper/css/pagination";
 
 function Slider() {
+  useEffect(() => {
+    AOS.init();
+    AOS.refresh();
+  })
   const SliderImageLIst = [
     "/design1.webp",
     "/design2.webp",
@@ -20,7 +26,7 @@ function Slider() {
     "/dsign_9.webp",
   ];
   return (
-    <div className="container py-16">
+    <div className="container py-16" data-aos="zoom-in-down">
       <div className="">
         <Swiper
           modules={[Navigation, Pagination]}
