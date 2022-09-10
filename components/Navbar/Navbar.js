@@ -30,6 +30,10 @@ function Navbar() {
       to: "/myNFTs",
     },
     {
+      name: "Blog Create",
+      to: "/blogCreate",
+    },
+    {
       name: "Blog",
       to: "/blogs",
     },

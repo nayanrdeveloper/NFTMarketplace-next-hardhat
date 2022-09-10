@@ -123,7 +123,7 @@ function createNFT() {
       );
       await NFTTranction.wait();
       setIsLoading(false);
-      toast.success("All Fields are required!!!", {
+      toast.success("Product are Upload Successfully", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
