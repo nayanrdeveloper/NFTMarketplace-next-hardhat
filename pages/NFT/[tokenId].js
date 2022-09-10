@@ -6,6 +6,7 @@ import axios from "axios";
 import NFTTOkenABI from "../../artifacts/contracts/myToken.sol/MyToken.json";
 import NFTMarketplaceABI from "../../artifacts/contracts/myNFT.sol/MyNFT.json";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import { ethers } from "ethers";
 import Loader from "../../components/Loader/Loader";

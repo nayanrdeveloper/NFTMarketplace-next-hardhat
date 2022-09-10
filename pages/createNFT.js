@@ -7,15 +7,16 @@ import { ethers } from "ethers";
 import NFTTOkenABI from "../artifacts/contracts/myToken.sol/MyToken.json";
 import NFTMarketplaceABI from "../artifacts/contracts/myNFT.sol/MyNFT.json";
 import "react-toastify/dist/ReactToastify.css";
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import AOS from "aos";
+import "aos/dist/aos.css";
+import ClipLoader from "react-spinners/ClipLoader";
 
 function createNFT() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     AOS.init();
     AOS.refresh();
-  })
+  });
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [productData, setProductData] = useState({
@@ -27,6 +28,8 @@ function createNFT() {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [NFTImage, setNFTImage] = useState();
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [isLoading, setIsLoading] = useState(false);
 
   const onchangeProductInput = (event) => {
     setProductData({
@@ -62,6 +65,7 @@ function createNFT() {
 
   const onSubmitProduct = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
     console.log("Start");
     console.log(event.target.file.files[0]);
     const imageFile = event.target.file.files[0];
@@ -109,10 +113,25 @@ function createNFT() {
       const price = await ethers.utils.parseUnits(productData.price, "ether");
       let listingPrice = await NFTMarketplaceContract.getListedPrice();
       let newlistingPrice = await listingPrice.toString();
-      let NFTTranction = await NFTMarketplaceContract.createToken(process.env.NEXT_PUBLIC_NFTTOKN_CONTRACT_ADDRESS,tokenId, price, {
-        value: newlistingPrice,
-      });
+      let NFTTranction = await NFTMarketplaceContract.createToken(
+        process.env.NEXT_PUBLIC_NFTTOKN_CONTRACT_ADDRESS,
+        tokenId,
+        price,
+        {
+          value: newlistingPrice,
+        }
+      );
       await NFTTranction.wait();
+      setIsLoading(false);
+      toast.success("All Fields are required!!!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
       console.log(NFTTranction);
     }
   };
@@ -138,7 +157,10 @@ function createNFT() {
                 <p className="text-[#acacac]">MAx 1Gb.</p>
               </div>
             </div>
-            <div className="flex flex-col border border-[#ffffff14] p-10 bg-[#24243557] rounded-lg gap-4 w-full" data-aos="fade-left">
+            <div
+              className="flex flex-col border border-[#ffffff14] p-10 bg-[#24243557] rounded-lg gap-4 w-full"
+              data-aos="fade-left"
+            >
               <div className="flex flex-col gap-2">
                 <label htmlFor="name" className="text-[#acacac]">
                   Product Name
@@ -184,8 +206,11 @@ function createNFT() {
               <button
                 // onClick={onSubmitProduct}
                 type="submit"
-                className="py-4 px-6 bg-[#00a3ff] hover:bg-[#212e48] text-white rounded-md w-40"
+                className={`flex py-4 px-6 bg-[#00a3ff] hover:bg-[#212e48] text-white rounded-md ${isLoading ? 'w-44' : 'w-36'}`}
               >
+                {
+                  isLoading && <ClipLoader color="white" className="mr-2" />
+                }
                 Submit Item
               </button>
             </div>
