@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<div id="top"></div>
 
-![HomePage!](/public/design10.jpg)
+<!-- ABOUT THE PROJECT -->
+# Nuron NFT MarketPlace
 
-## Getting Started
+A Nuron NFT Marketplace is NFT for sell and buy Product using Openzepplin (ERC721), Hardhat and Solidity.
+<p>Home Page</p>
+![HomePage!](Screenshot/homePage.png)
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+### Built With
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* [Solidity](https://docs.soliditylang.org/)
+* [Hardhat](https://hardhat.org/getting-started/)
+* [Next.js](https://nextjs.org/)
+* [ethers.js](https://docs.ethers.io/v5/)
+* [web3-Onboard](https://docs.blocknative.com/onboard)
+* [TailwindCss](https://tailwindcss.com/)
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+### User interface
+   
+The front end is built with Next JS it's framework of React, it allows users to mint new NFTS and they can find on the home page a complete roadmap for the entire NFT project, the app also give a simple admin dashboard for setting minting prices and managing the sales period ( whitelisting, presale, public sale).
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+The front-end is built using the following libraries:
+      <ul>
+        <li><b>Ethers.js:</b> used as interface between the UI and the deployed smart contract</li>
+        <li><b>Web3-Onboard:</b> for conecting to Metamask</li>
+        <li><b>mobx:</b> for managing the app states (account, balance, blockchain) </li>
+        <li><b>Tailwind CSS:</b> Styles using TailwindCss</li>    
+      </ul>
+      
+The main component is Mint.js which handles the nft minting and the coundown periods : 
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+![Home Page](Screenshot/homePage.png)
 
-## Learn More
+Connect Wallet:
 
-To learn more about Next.js, take a look at the following resources:
+![Connect wallet](Screenshot/Connect_Wallet.png)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create NFT:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+![Create NFT](Screenshot/Create_NFT.png)
 
-## Deploy on Vercel
+All NFTs:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+![All NFT](Screenshot/all_nft.png)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Blogs (All blogs are stored in Blockchain)
+
+![Blogs](Screenshot/blogs_page.png)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### Prerequisites
+
+* [nodejs](https://nodejs.org/en/download/) and [yarn](https://classic.yarnpkg.com/en/)
+* [MetaMask](https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn) Chrome extension installed in your browser
+* [Hardhat](https://hardhat.org/) for local smart contracts deployement and testing
+* [nft.storage](https://nft.storage/) account for IPFS storage (free account).
